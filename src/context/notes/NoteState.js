@@ -21,7 +21,6 @@ const NoteState = (props) => {
         });
 
         const json = await response.json();
-        console.log(json)
         setNotes(json);
     }
 
@@ -34,19 +33,10 @@ const NoteState = (props) => {
                 "Content-Type": "application/json",
                 "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjU4NGQ2ZTU5MjA4ZjI0MWVmMTc3ZmVhIn0sImlhdCI6MTcwMzIwNDU5NH0.pco3lsZFpOKDv7oOhDyrCBQGY2IHkUglH8RjFxHkbus"
             },
-            body: JSON.stringify({title, description, tag})
+            body: JSON.stringify({ title, description, tag })
         });
 
-        const note = {
-            "_id": "658da3a3917aa8a1685b0ac626",
-            "user": "6584d6e59208f241ef177fea",
-            "title": title,
-            "description": description,
-            "tag": tag,
-            "date": "2023-12-28T16:34:43.028Z",
-            "__v": 0
-        }
-
+        const note = await response.json();
         setNotes(notes.concat(note));
     }
 
@@ -54,47 +44,50 @@ const NoteState = (props) => {
     const editNote = async (id, title, description, tag) => {
         // API call
         const response = await fetch(`${host}/api/notes/updatenote/${id}`, {
-            method: "POST",
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjU4NGQ2ZTU5MjA4ZjI0MWVmMTc3ZmVhIn0sImlhdCI6MTcwMzIwNDU5NH0.pco3lsZFpOKDv7oOhDyrCBQGY2IHkUglH8RjFxHkbus"
             },
-            body: JSON.stringify({title, description, tag})
+            body: JSON.stringify({ title, description, tag })
         });
         const json = response.json();
 
-    // Logic to edit note
-    for (let index = 0; index < notes.length; index++) {
-        const element = notes[index];
-        if (element.id === id) {
-            element.title = title;
-            element.description = description;
-            element.tag = tag;
+        let newNotes = JSON.parse(JSON.stringify(notes));
+
+        // Logic to edit note
+        for (let index = 0; index < newNotes.length; index++) {
+            const element = newNotes[index];
+            if (element._id === id) {
+                newNotes[index].title = title;
+                newNotes[index].description = description;
+                newNotes[index].tag = tag;
+                break;
+            }
         }
+        setNotes(newNotes);
     }
-}
 
-// Delete Note
-const deleteNote = async (id) => {
-    // API call
-    const response = await fetch(`${host}/api/notes/deletenote/${id}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-            "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjU4NGQ2ZTU5MjA4ZjI0MWVmMTc3ZmVhIn0sImlhdCI6MTcwMzIwNDU5NH0.pco3lsZFpOKDv7oOhDyrCBQGY2IHkUglH8RjFxHkbus"
-        },
-    });
-    const json = response.json();
+    // Delete Note
+    const deleteNote = async (id) => {
+        // API call
+        const response = await fetch(`${host}/api/notes/deletenote/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjU4NGQ2ZTU5MjA4ZjI0MWVmMTc3ZmVhIn0sImlhdCI6MTcwMzIwNDU5NH0.pco3lsZFpOKDv7oOhDyrCBQGY2IHkUglH8RjFxHkbus"
+            },
+        });
+        const json = response.json();
+        const newNotes = notes.filter((note) => { return note._id !== id });
+        setNotes(newNotes);
+    }
 
-    const newNotes = notes.filter((note) => { return note._id !== id });
-    setNotes(newNotes);
-}
-
-return (
-    <noteContext.Provider value={{ notes, addNote, deleteNote, editNote, getNote }}>
-        {props.children}
-    </noteContext.Provider>
-)
+    return (
+        <noteContext.Provider value={{ notes, addNote, deleteNote, editNote, getNote }}>
+            {props.children}
+        </noteContext.Provider>
+    )
 }
 
 export default NoteState;

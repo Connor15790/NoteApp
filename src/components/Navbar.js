@@ -1,11 +1,11 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
     let location = useLocation();
 
     useEffect(() => {
-      }, [location]);
+    }, [location]);
 
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -24,6 +24,10 @@ const Navbar = () => {
                         </li>
                     </ul>
                 </div>
+                <form className="form-inline my-2 my-lg-0">
+                    <Link to="/login"><button className="btn btn-primary mx-2" type="submit">Login</button></Link>
+                    <Link to="/signup"><button className="btn btn-primary mx-2" type="submit">Signup</button></Link>
+                </form>
             </div>
         </nav>
     )
